@@ -3,7 +3,7 @@ from urllib.request import urlopen as uReq
 from bs4 import BeautifulSoup as soup
 
 #Establish a connection to the website, and download the html
-my_url = "https://phish.net/setlists/phish-may-09-1989-the-front-burlington-vt-usa.html"
+my_url = "https://phish.net/setlists/phish-may-13-1989-the-orange-grove-syracuse-ny-usa.html"
 uClient = uReq(my_url)
 page_html = uClient.read()
 uClient.close()
@@ -49,26 +49,45 @@ loc = nextATag[0].contents[0] + ", " + nextATag[1].contents[0]
 #Iterate through sets, and then songs per set
 contents = page_soup.find("div", {"class":"setlist-body"})
 #Outer-loop tracks the set number/encore
-for p in contents.find_all("p"):
-    setNumber = p.find("span").contents[0].title()
-
+if(0 == 0):
+    p = contents.find("p")
+    for tag in p.find_all(["a","span"]):
+        if(tag.name == "span"):
+            print (tag.contents[0])
+        else:
+            song = tag.contents[0]
+            print(song, end = "")
+            sib = tag.next_sibling
+            sibString = str(sib)
+            while(sibString[0] == "<"):
+                sib = sib.next_sibling
+                sibString = str(sib)
+            segue = False
+            transition = False
+            if("->" in sibString):
+                #transition = True
+                print("->")
+            elif(">" in sibString):
+                #segue = True
+                print(">")
+            else:
+                print(",")
+    
+"""
     #Inner-loop gets the songs in each set
     for a in p.find_all("a"):
         song = a.contents[0]
-        print(song)
         sib = a.next_sibling
         sibString = str(sib)
         while(sibString[0] == "<"):
             sib = sib.next_sibling
             sibString = str(sib)
-        print(sib)
+        segue = False
+        transition = False
+        if("->" in sibString):
+            transition = True
+        elif(">" in sibString):
+            segue = True
 
-        """if(sib == ","):
-            print(sib)
-        elif(sib == ">"):
-            print(sib)
-        elif(sib == "->"):
-            print(sib)
-        else:
-            print(sib.next_sibling)"""
-
+    print(p)
+"""

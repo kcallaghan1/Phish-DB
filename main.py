@@ -34,7 +34,7 @@ def main():
         songCount = 1
         venueCount = 1
         showCount = 1
-        setCount = 1
+        setCount = 0
         setlistEntryCount = 1
 
         
@@ -85,14 +85,23 @@ def main():
 
             #Iterate through sets
             setlistBody = page_soup.find("div", {"class":"setlist-body"})
-            #Outer-loop tracks the set
-            for p in setlistBody.find_all("p"):
-                setInfo = p.find("span").contents[0].title() #Ex: Set 1, Set 2, Encore
-                setlistSongCount = 1  #Keeps count of number of songs in a given set
 
-                #Inner-loop gets the songs in each set
-                for a in p.find_all("a"):
-                    song = a.contents[0]
+
+            p = setlistBody.find("p")
+            
+            #Works through and gets the set or song information
+            setlistSongCount = 1
+            setInfo = ""
+            for tag in p.find_all(["a", "span"]):
+                #If next tag is span tag, it will hold the setInfo instead of a song
+                if(tag.name == "span"):
+                    setInfo = tag.contents[0]
+                    setlistSongCount = 1
+                    setCount += 1
+
+                else: #Otherwise, the next tag will be an <a>, which holds a song.
+
+                    song = tag.contents[0]
 
                     songID = 1
                     #Check whether or not to add song to Song table
@@ -107,7 +116,7 @@ def main():
                         songID = cur.fetchall()[0][0]
 
                     #Handles whether songs are separated by ",", ">", or "->"
-                    sib = a.next_sibling
+                    sib = tag.next_sibling
                     sibString = str(sib)
                     while(sibString[0] == "<"):
                         sib = sib.next_sibling
@@ -124,7 +133,6 @@ def main():
                     SQLInsert.insert_setlist(conn, setlistEntryToInsert)
                     setlistSongCount += 1
                     setlistEntryCount += 1
-                setCount += 1
 
 
             #Check the Venues table if this Venue already exists
